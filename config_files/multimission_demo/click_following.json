@@ -1,0 +1,113 @@
+{
+    "Spacecraft_IDS": [
+        25544
+    ],
+    "Groundstations": [
+        {
+            "Name": "MIT",
+            "Lat": 42.36,
+            "Lon": -71.09
+        },
+        {
+            "Name": "Copenhagen",
+            "Lat": 55.68,
+            "Lon": 12.57
+        },
+        {
+            "Name": "Punta Arenas",
+            "Lat": -53.166667,
+            "Lon": -70.933333
+        }
+    ],
+    "central_geometry": [
+        0,
+        1,
+        4,
+        3
+    ],
+    "modules": [
+        {
+            "source_file": "follower_sat",
+            "initparams": {
+                "name": "Follower",
+                "grid_x": 2,
+                "grid_y": 0,
+                "grid_w": 2,
+                "grid_h": 1,
+                "color": "#d0aaed",
+                "sat_ID": 99999,
+                "leader_ID": 25544
+            }
+        },
+        {
+            "source_file": "Timecontrol",
+            "initparams": {
+                "name": "TimeController",
+                "grid_x": 4,
+                "grid_y": 1,
+                "grid_w": 2,
+                "grid_h": 1,
+                "color": "#abcdef",
+                "self_update_ms": 1000
+            }
+        },
+        {
+            "source_file": "mapdot.mapdot",
+            "initparams": {
+                "name": "Mapview",
+                "grid_x": 0,
+                "grid_y": 0,
+                "grid_w": 2,
+                "grid_h": 1,
+                "self_update_ms": 1000,
+                "SATS": [
+                    {
+                        "Name": "ISS Follower",
+                        "ID": 99999,
+                        "Color": "lightgreen"
+                    },
+                    {
+                        "Name": "ISS",
+                        "ID": 25544,
+                        "Color": "red"
+                    }
+                ]
+            }
+        },
+        {
+            "source_file": "pass_polar",
+            "initparams": {
+                "name": "PolarPassPlot",
+                "grid_x": 4,
+                "grid_y": 2,
+                "grid_w": 2,
+                "grid_h": 2,
+                "self_update_ms": 1000,
+                "groundstation": "Punta Arenas",
+                "SATS": [
+                    {
+                        "ID": 99999,
+                        "Color": "lightgreen"
+                    },
+                    {
+                        "ID": 25544,
+                        "Color": "red"
+                    }
+                ]
+            }
+        },
+        {
+            "source_file": "passfinder",
+            "initparams": {
+                "name": "Passplot",
+                "grid_x": 4,
+                "grid_y": 0,
+                "grid_w": 2,
+                "grid_h": 1,
+                "color": "#abcdef",
+                "sat_id": 25544,
+                "groundstation": "Punta Arenas"
+            }
+        }
+    ]
+}

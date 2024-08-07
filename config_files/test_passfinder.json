@@ -1,0 +1,49 @@
+{
+    "Spacecraft_IDS": [
+        25544,
+        20580,
+        51850
+    ],
+    "Groundstations": [
+        {
+            "Name": "MIT",
+            "Lat": 42.36,
+            "Lon": -71.09
+        },
+        {
+            "Name": "Copenhagen",
+            "Lat": 55.68,
+            "Lon": 12.57
+        }
+    ],
+    "central_geometry": [
+        0,0,3,2
+    ],
+    "modules": [
+        {
+            "source_file": "Timecontrol",
+            "initparams": {
+                "name": "TimeController",
+                "grid_x": 3,
+                "grid_y": 0,
+                "grid_w": 2,
+                "grid_h": 1,
+                "color": "#abcdef",
+                "self_update_ms": 1000
+            }
+        },
+        {
+            "source_file": "passfinder",
+            "initparams": {
+                "name": "Passplot",
+                "grid_x": 3,
+                "grid_y": 1,
+                "grid_w": 2,
+                "grid_h": 1,
+                "color": "#abcdef",
+                "sat_id": 25544,
+                "groundstation": "MIT"
+            }
+        }
+    ]
+}

@@ -1,0 +1,111 @@
+{
+"Spacecraft_IDS":[25544,20580,51850],
+"central_geometry": [1,1,4,4],
+"modules":[
+    {
+    "source_file":"Timecontrol",
+    "initparams":{
+        "name":"TimeController",
+        "grid_x": 5,
+        "grid_y": 1,
+        "grid_w": 2,
+        "grid_h": 1,
+        "color":"#abcdef",
+        "self_update_ms":1000
+        }
+    },
+    {
+    "source_file":"beta_angle",
+    "initparams":{
+        "name":"Betaview",
+        "grid_x": 0,
+        "grid_y": 0,
+        "grid_w": 1,
+        "grid_h": 1,
+        "self_update_ms":1000,
+        "SATS":[{
+                "ID":25544,
+                "Color":"red"
+                },
+                {
+                "ID":20580,
+                "Color":"yellow"
+                },
+                {
+                "ID":51850,
+                "Color":"salmon"
+                }
+                ]
+        }
+    },
+    {
+        "source_file":"eclipse_plot",
+        "initparams":{
+            "name":"Eclipse",
+            "grid_x": 5,
+            "grid_y": 2,
+            "grid_w": 2,
+            "grid_h": 1,
+            "color":"#125396",
+            "sat_id":25544,
+            "self_update_ms":1000
+            }
+    },
+    {
+        "source_file":"telemetry",
+        "initparams":{
+            "name":"BCA 1 Amps",
+            "telemetry_item":"AIRLOCK000012",
+            "ylabel":"BCA 1 Amps",
+            "x_timerange":60,
+            "grid_x": 0,
+            "grid_y": 1,
+            "grid_w": 1,
+            "grid_h": 1,
+            "color":"#E29883"
+            }
+    },
+    {
+        "source_file":"telemetry",
+        "initparams":{
+            "name":"BCA 2 Amps",
+            "telemetry_item":"AIRLOCK000014",
+            "ylabel":"BCA 2 Amps",
+            "x_timerange":60,
+            "grid_x": 0,
+            "grid_y": 2,
+            "grid_w": 1,
+            "grid_h": 1,
+            "color":"#E29883"
+            }
+    },
+    {
+        "source_file":"telemetry",
+        "initparams":{
+            "name":"BCA 3 Amps",
+            "telemetry_item":"AIRLOCK000016",
+            "ylabel":"BCA 3 Amps",
+            "x_timerange":60,
+            "grid_x": 0,
+            "grid_y": 3,
+            "grid_w": 1,
+            "grid_h": 1,
+            "color":"#E29883"
+            }
+    },
+    {
+        "source_file":"telemetry",
+        "initparams":{
+            "name":"BCA 4 Amps",
+            "telemetry_item":"AIRLOCK000018",
+            "ylabel":"BCA 4 Amps",
+            "x_timerange":60,
+            "grid_x": 5,
+            "grid_y": 3,
+            "grid_w": 1,
+            "grid_h": 1,
+            "color":"#E29883"
+            }
+    }
+]
+}

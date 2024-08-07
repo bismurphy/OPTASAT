@@ -1,0 +1,45 @@
+{
+    "Spacecraft_IDS": [],
+    "Groundstations": [],
+    "central_geometry": [1, 1, 3, 3],
+    "modules": [
+        {
+            "source_file": "arduino_telemetry",
+            "initparams": {
+                "name": "Arduino_Telemetry",
+                "plots": [
+                    {
+                        "name": "X acceleration",
+                        "ylabel": "aX",
+                        "x_timerange": 60,
+                        "grid_x": 0,
+                        "grid_y": 0,
+                        "grid_w": 1,
+                        "grid_h": 1,
+                        "color": "#2F74EE"
+                    },
+                    {
+                        "name": "Y acceleration",
+                        "ylabel": "aY",
+                        "x_timerange": 60,
+                        "grid_x": 0,
+                        "grid_y": 1,
+                        "grid_w": 1,
+                        "grid_h": 1,
+                        "color": "#E29883"
+                    },
+                    {
+                        "name": "Z acceleration",
+                        "ylabel": "aZ",
+                        "x_timerange": 60,
+                        "grid_x": 4,
+                        "grid_y": 2,
+                        "grid_w": 1,
+                        "grid_h": 1,
+                        "color": "#E29883"
+                    }
+                ]
+            }
+        }
+    ]
+}

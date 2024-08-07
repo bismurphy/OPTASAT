@@ -1,0 +1,49 @@
+{
+    "Spacecraft_IDS": [
+        25544,
+        20580,
+        51850
+    ],
+    "central_geometry": [
+        0,0,3,2
+    ],
+    "modules": [
+        {
+            "source_file": "Timecontrol",
+            "initparams": {
+                "name": "TimeController",
+                "grid_x": 3,
+                "grid_y": 0,
+                "grid_w": 2,
+                "grid_h": 1,
+                "color": "#abcdef",
+                "self_update_ms": 1000
+            }
+        },
+        {
+            "source_file": "starmap.starmap",
+            "initparams": {
+                "name": "starmap",
+                "grid_x": 3,
+                "grid_y": 1,
+                "grid_w": 2,
+                "grid_h": 1,
+                "color": "#FFFFFF",
+                "sat_id": 20580,
+                "self_update_ms": 1000,
+                "keepouts": [
+                    {
+                        "color": "#AAAAAA",
+                        "radius": 20,
+                        "center": "moon"
+                    },
+                    {
+                        "color": "#FF00FF",
+                        "radius": 5,
+                        "center": [270,-40]
+                    }
+                ]
+            }
+        }
+    ]
+}

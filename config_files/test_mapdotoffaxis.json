@@ -1,0 +1,54 @@
+{
+    "Spacecraft_IDS": [
+        25544,
+        20580,
+        51850
+    ],
+    "central_geometry": [
+        0,0,3,2
+    ],
+    "modules": [
+        {
+        "source_file":"Timecontrol",
+        "initparams":{
+            "name":"TimeController",
+            "grid_x": 3,
+            "grid_y": 0,
+            "grid_w": 2,
+            "grid_h": 1,
+            "color":"#abcdef",
+            "self_update_ms":1000
+            }
+        },
+        {
+        "source_file":"mapdot.mapdot",
+        "initparams":{
+            "name":"Mapview",
+            "grid_x": 3,
+            "grid_y": 1,
+            "grid_w": 2,
+            "grid_h": 1,
+            "self_update_ms":500,
+            "SATS":[{
+                    "Name":"ISS",
+                    "ID":25544,
+                    "Color":"red",
+                    "FOV":70
+                    },
+                    {
+                    "Name": "Hubble",
+                    "ID":20580,
+                    "Color":"yellow",
+                    "FOV":10
+                    },
+                    {
+                    "Name": "GOES West",
+                    "ID":51850,
+                    "Color":"salmon",
+                    "FOV": 1
+                    }
+                    ]
+            }
+        }
+    ]
+}

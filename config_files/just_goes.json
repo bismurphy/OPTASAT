@@ -1,0 +1,51 @@
+{
+"Spacecraft_IDS":[25544,20580,51850],
+"central_geometry": [2, 2, 3, 3],
+"modules":[
+    {
+    "source_file":"mapdot.mapdot",
+    "initparams":{
+        "name":"Mapview",
+        "grid_x": 5,
+        "grid_y": 4,
+        "grid_w": 2,
+        "grid_h": 1,
+        "self_update_ms":3000,
+        "SATS":[{
+            "Name":"ISS",
+            "ID":25544,
+            "Color":"red"
+            },
+            {
+            "Name": "Hubble",
+            "ID":20580,
+            "Color":"yellow"
+            },
+            {
+            "Name": "GOES West",
+            "ID":51850,
+            "Color":"salmon"
+            }
+            ]
+        }
+    },
+    {
+    "source_file":"beta_angle",
+    "initparams":{
+        "name":"Betaview",
+        "grid_x": 0,
+        "grid_y": 0,
+        "grid_w": 2,
+        "grid_h": 2,
+        "self_update_ms":1000,
+        "SATS":[
+                {
+                "ID":51850,
+                "Color":"salmon"
+                }
+                ]
+        }
+    }
+    
+]
+}

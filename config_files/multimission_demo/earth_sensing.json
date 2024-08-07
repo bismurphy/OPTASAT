@@ -1,0 +1,99 @@
+{
+    "Spacecraft_IDS": [
+        25544,
+        20580,
+        51850
+    ],
+    "Groundstations": [
+        {
+            "Name": "MIT",
+            "Lat": 42.36,
+            "Lon": -71.09
+        },
+        {
+            "Name": "Copenhagen",
+            "Lat": 55.68,
+            "Lon": 12.57
+        }
+    ],
+    "central_geometry": [1,1,4,4],
+    "modules": [
+        {
+            "source_file": "Timecontrol",
+            "initparams": {
+                "name": "TimeController",
+                "grid_x": 5,
+                "grid_y": 1,
+                "grid_w": 2,
+                "grid_h": 1,
+                "color": "#abcdef",
+                "self_update_ms": 1000
+            }
+        },
+        {
+            "source_file": "mapdot.mapdot",
+            "initparams": {
+                "name": "Mapview",
+                "grid_x": 5,
+                "grid_y": 0,
+                "grid_w": 2,
+                "grid_h": 1,
+                "self_update_ms": 500,
+                "SATS": [
+                    {
+                        "Name": "ISS",
+                        "ID": 25544,
+                        "Color": "red"
+                    },
+                    {
+                        "Name": "Hubble",
+                        "ID": 20580,
+                        "Color": "yellow"
+                    },
+                    {
+                        "Name": "GOES West",
+                        "ID": 51850,
+                        "Color": "salmon"
+                    }
+                ]
+            }
+        },
+        {
+            "source_file": "ground_view.ground_view",
+            "initparams": {
+                "name": "groundpatch",
+                "grid_x": 1,
+                "grid_y": 0,
+                "grid_w": 1,
+                "grid_h": 1,
+                "color": "#123456",
+                "self_update_ms": 500,
+                "sat_id": 25544,
+                "halfangle_fov_deg": 25
+            }
+        },
+        {
+            "source_file": "gs_access",
+            "initparams": {
+                "name": "MIT_access",
+                "grid_x": 0,
+                "grid_y": 1,
+                "grid_w": 1,
+                "grid_h": 1,
+                "color": "#123456",
+                "groundstation": "MIT"
+            }
+        },
+        {
+            "source_file": "space_weather_embed",
+            "initparams": {
+                "name": "spaceweather",
+                "grid_x": 5,
+                "grid_y": 3,
+                "grid_w": 2,
+                "grid_h": 2,
+                "color": "#000000"
+            }
+        }
+    ]
+}

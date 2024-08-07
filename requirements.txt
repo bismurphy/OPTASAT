@@ -1,0 +1,8 @@
+PyQt5
+pyqtgraph
+PyOpenGL
+skyfield
+matplotlib
+pandas
+lightstreamer-client-lib
+requests

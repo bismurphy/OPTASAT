@@ -1,0 +1,67 @@
+{
+    "Spacecraft_IDS": [
+        20580
+    ],
+    "central_geometry": [2, 2, 3, 3],
+
+    "modules": [
+        {
+            "source_file": "rectangle",
+            "initparams": {
+                "name": "TestRectangle2",
+                "grid_x": 2,
+                "grid_y": 0,
+                "grid_w": 1,
+                "grid_h": 1,
+                "color": "#abcdef"
+            }
+        },
+        {
+            "source_file": "Timecontrol",
+            "initparams": {
+                "name": "TimeController",
+                "grid_x": 5,
+                "grid_y": 0,
+                "grid_w": 2,
+                "grid_h": 1,
+                "color": "#abcdef",
+                "self_update_ms": 1000
+            }
+        },
+        {
+            "source_file": "mapdot.mapdot",
+            "initparams": {
+                "name": "Mapview",
+                "grid_x": 5,
+                "grid_y": 3,
+                "grid_w": 2,
+                "grid_h": 2,
+                "self_update_ms": 500,
+                "SATS": [
+                    {
+                        "Name": "Hubble",
+                        "ID": 20580,
+                        "Color": "yellow"
+                    }
+                ]
+            }
+        },
+        {
+            "source_file": "beta_angle",
+            "initparams": {
+                "name": "Betaview",
+                "grid_x": 0,
+                "grid_y": 0,
+                "grid_w": 2,
+                "grid_h": 2,
+                "self_update_ms": 1000,
+                "SATS": [
+                    {
+                        "ID": 20580,
+                        "Color": "yellow"
+                    }
+                ]
+            }
+        }
+    ]
+}

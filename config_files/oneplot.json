@@ -1,0 +1,93 @@
+{
+    "Spacecraft_IDS": [
+        25544,
+        20580,
+        51850
+    ],
+    "central_geometry": [
+        2,
+        1,
+        3,
+        3
+    ],
+    "modules": [
+        {
+            "source_file": "rectangle",
+            "initparams": {
+                "name": "TestRectangle2",
+                "grid_x": 2,
+                "grid_y": 0,
+                "grid_w": 2,
+                "grid_h": 1,
+                "color": "#abcdef"
+            }
+        },
+        {
+            "source_file": "mapdot.mapdot",
+            "initparams": {
+                "name": "Mapview",
+                "grid_x": 5,
+                "grid_y": 1,
+                "grid_w": 2,
+                "grid_h": 1,
+                "self_update_ms": 3000,
+                "SATS": [
+                    {
+                        "Name": "ISS",
+                        "ID": 25544,
+                        "Color": "red"
+                    },
+                    {
+                        "Name": "Hubble",
+                        "ID": 20580,
+                        "Color": "yellow"
+                    },
+                    {
+                        "Name": "GOES West",
+                        "ID": 51850,
+                        "Color": "salmon"
+                    }
+                ]
+            }
+        },
+        {
+            "source_file": "beta_angle",
+            "initparams": {
+                "name": "Betaview",
+                "grid_x": 0,
+                "grid_y": 0,
+                "grid_w": 2,
+                "grid_h": 2,
+                "self_update_ms": 1000,
+                "SATS": [
+                    {
+                        "ID": 25544,
+                        "Color": "red"
+                    },
+                    {
+                        "ID": 20580,
+                        "Color": "yellow"
+                    },
+                    {
+                        "ID": 51850,
+                        "Color": "salmon"
+                    }
+                ]
+            }
+        },
+        {
+            "source_file": "telemetry",
+            "initparams": {
+                "name": "RollTelem",
+                "telemetry_item": "USLAB000006",
+                "ylabel": "Roll torque (Nm)",
+                "x_timerange": 60,
+                "grid_x": 0,
+                "grid_y": 2,
+                "grid_w": 2,
+                "grid_h": 2,
+                "color": "#2F74EE"
+            }
+        }
+    ]
+}
