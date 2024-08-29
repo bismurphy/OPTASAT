@@ -30,7 +30,6 @@ class Timecontrol():
         self.dateTimeEdit.setWrapping(True) # allow the text to go 2 lines if needed
         self.dateTimeEdit.setDisplayFormat("yyyy-MM-dd hh:mm:ss")
         self.dateTimeEdit.dateTimeChanged.connect(lambda:self.set_time(self.dateTimeEdit.dateTime().toPyDateTime()))
-        self.window.cross_module_vars['globaltime'] = datetime.datetime.utcnow()
         grid.addWidget(self.dateTimeEdit,1,0,1,2)
         self.dateTimeEdit.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Expanding)
 
