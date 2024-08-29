@@ -145,14 +145,14 @@ class starmap():
             center = keepout_def['center']
             if type(center) == str:
                 if center == "moon":
-                   center = [moon_ra.radians, moon_dec.radians]
+                   center = [moon_ra._degrees, moon_dec.degrees]
                 if center == "sun":
-                    center = [sun_ra.radians, sun_dec.radians]
+                    center = [sun_ra._degrees, sun_dec.degrees]
                 if center == "earth":
                     sat_ra,sat_dec,_ = self.sat_obj.at(plot_time).radec()
-                    earth_ra = (sat_ra.radians + np.pi) % TWOPI
-                    earth_dec = -sat_dec.radians
-                    center = [earth_ra.radians, earth_dec.radians]
+                    earth_ra = (sat_ra.degrees + np.pi) % TWOPI
+                    earth_dec = -sat_dec.degrees
+                    center = [earth_ra._degrees, earth_dec.degrees]
             if type(center) == list:
                 # convert center degrees to radians
                 center = [x / RAD2DEG for x in center]
