@@ -49,8 +49,6 @@ class Window(QMainWindow):
 
         #A dictionary that any module can read or write to, in order to exchange data between each other.
         self.cross_module_vars = {}
-        # Initialize global time to now, other modules (especially time controller) may change it.
-        self.cross_module_vars['globaltime'] = datetime.datetime.utcnow()
     def load_config(self):
         print("Loading configuration")
         chosen_config_file = QFileDialog.getOpenFileName(self)[0]
@@ -59,6 +57,12 @@ class Window(QMainWindow):
             self.params = json.load(f)
         TLES = {x : load_tle.get_tle(x) for x in self.params['Spacecraft_IDS']}
         self.cross_module_vars["TLES"] = TLES
+        # Initialize global time to now, other modules (especially time controller) may change it.
+        if "start_time" in self.params:
+            self.cross_module_vars['globaltime'] = datetime.datetime(*self.params['start_time'])
+        else:
+            self.cross_module_vars['globaltime'] = datetime.datetime.utcnow()
+
         self.all_active_modules = []
         for module in self.params['modules']:
             file = module['source_file']
@@ -73,9 +77,11 @@ class Window(QMainWindow):
         self.centralGeometry = self.params['central_geometry']
         self.largeCentralPanel = None
         # Make the grid layout share rows and columns evenly
-        for i in range(self.grid.rowCount()):
+        min_height = self.centralGeometry[1] + self.centralGeometry[3]
+        min_width = self.centralGeometry[0] + self.centralGeometry[2]
+        for i in range(max(min_height,self.grid.rowCount())):
             self.grid.setRowStretch(i, 1)
-        for j in range(self.grid.columnCount()):
+        for j in range(max(min_width,self.grid.columnCount())):
             self.grid.setColumnStretch(j, 1)
         main_window.hide()
         main_window.show()
