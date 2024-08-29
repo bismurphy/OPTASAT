@@ -141,23 +141,24 @@ class starmap():
         moon_ra,moon_dec,_ = (self.moon-self.earth-self.sat_obj).at(plot_time).radec()
         # first plot keepout zones, so they end up in the background
         plotted_keepouts = []
-        for keepout_def in self.keepouts:
-            center = keepout_def['center']
-            if type(center) == str:
-                if center == "moon":
-                   center = [moon_ra._degrees, moon_dec.degrees]
-                if center == "sun":
-                    center = [sun_ra._degrees, sun_dec.degrees]
-                if center == "earth":
-                    sat_ra,sat_dec,_ = self.sat_obj.at(plot_time).radec()
-                    earth_ra = (sat_ra.degrees + np.pi) % TWOPI
-                    earth_dec = -sat_dec.degrees
-                    center = [earth_ra._degrees, earth_dec.degrees]
-            if type(center) == list:
-                # convert center degrees to radians
-                center = [x / RAD2DEG for x in center]
-            radius_degrees = keepout_def['radius'] / RAD2DEG
-            plotted_keepouts.extend(self.plot_circle(center[1], center[0], radius_degrees, keepout_def['color']))
+        if hasattr(self,'keepouts'):
+            for keepout_def in self.keepouts:
+                center = keepout_def['center']
+                if type(center) == str:
+                    if center == "moon":
+                        center = [moon_ra._degrees, moon_dec.degrees]
+                    if center == "sun":
+                        center = [sun_ra._degrees, sun_dec.degrees]
+                    if center == "earth":
+                        sat_ra,sat_dec,_ = self.sat_obj.at(plot_time).radec()
+                        earth_ra = (sat_ra.degrees + np.pi) % TWOPI
+                        earth_dec = -sat_dec.degrees
+                        center = [earth_ra._degrees, earth_dec.degrees]
+                if type(center) == list:
+                    # convert center degrees to radians
+                    center = [x / RAD2DEG for x in center]
+                radius_degrees = keepout_def['radius'] / RAD2DEG
+                plotted_keepouts.extend(self.plot_circle(center[1], center[0], radius_degrees, keepout_def['color']))
         #These functions are all time-dependent and draw everything on the background of stars.
         satellite_mark = self.mark_satellite(self.sat_obj,plot_time)
         earth_polygons = self.draw_earth(self.sat_obj,plot_time)
