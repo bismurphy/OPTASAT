@@ -27,8 +27,6 @@ HALFPI = np.pi / 2
 SUN_IMAGE =  plt.imread(os.path.dirname(os.path.realpath(__file__))  +'/sun.png')
 MOON_IMAGE = plt.imread(os.path.dirname(os.path.realpath(__file__))  +'/moon.png')
 
-#hardcoded for now, change to be in json
-STAR_MAG_LIMIT = 2.5
 #how many points to use when drawing the earth occlusion shape
 VERTICAL_RESOLUTION = 1000
 #How large to draw the images of the sun and moon. Note this is much larger than real-life.
@@ -190,7 +188,7 @@ class starmap():
 
         self.ts = load.timescale()
         time = self.ts.from_datetime(self.window.cross_module_vars['globaltime'].replace(tzinfo=utc))
-        self.star_field, self.star_names = self.draw_starmap(STAR_MAG_LIMIT,time)
+        self.star_field, self.star_names = self.draw_starmap(self.star_mag_limit,time)
         TLE = self.window.cross_module_vars['TLES'][self.sat_id]
         self.sat_obj = EarthSatellite(*TLE)
 

@@ -132,3 +132,4 @@ hip_main.dat
 *.bsp
 
 collected_data.txt
+ignored_configs/
