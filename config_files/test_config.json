@@ -150,6 +150,7 @@
                 "grid_w": 2,
                 "grid_h": 1,
                 "color": "#000000",
+                "star_mag_limit": 2.5,
                 "sat_id": 20580,
                 "self_update_ms": 1000,
                 "keepouts": [

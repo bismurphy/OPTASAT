@@ -27,8 +27,6 @@ HALFPI = np.pi / 2
 SUN_IMAGE =  plt.imread(os.path.dirname(os.path.realpath(__file__))  +'/sun.png')
 MOON_IMAGE = plt.imread(os.path.dirname(os.path.realpath(__file__))  +'/moon.png')
 
-#hardcoded for now, change to be in json
-STAR_MAG_LIMIT = 2.5
 #how many points to use when drawing the earth occlusion shape
 VERTICAL_RESOLUTION = 1000
 #How large to draw the images of the sun and moon. Note this is much larger than real-life.
@@ -141,23 +139,24 @@ class starmap():
         moon_ra,moon_dec,_ = (self.moon-self.earth-self.sat_obj).at(plot_time).radec()
         # first plot keepout zones, so they end up in the background
         plotted_keepouts = []
-        for keepout_def in self.keepouts:
-            center = keepout_def['center']
-            if type(center) == str:
-                if center == "moon":
-                   center = [moon_ra.radians, moon_dec.radians]
-                if center == "sun":
-                    center = [sun_ra.radians, sun_dec.radians]
-                if center == "earth":
-                    sat_ra,sat_dec,_ = self.sat_obj.at(plot_time).radec()
-                    earth_ra = (sat_ra.radians + np.pi) % TWOPI
-                    earth_dec = -sat_dec.radians
-                    center = [earth_ra.radians, earth_dec.radians]
-            if type(center) == list:
-                # convert center degrees to radians
-                center = [x / RAD2DEG for x in center]
-            radius_degrees = keepout_def['radius'] / RAD2DEG
-            plotted_keepouts.extend(self.plot_circle(center[1], center[0], radius_degrees, keepout_def['color']))
+        if hasattr(self,'keepouts'):
+            for keepout_def in self.keepouts:
+                center = keepout_def['center']
+                if type(center) == str:
+                    if center == "moon":
+                        center = [moon_ra._degrees, moon_dec.degrees]
+                    if center == "sun":
+                        center = [sun_ra._degrees, sun_dec.degrees]
+                    if center == "earth":
+                        sat_ra,sat_dec,_ = self.sat_obj.at(plot_time).radec()
+                        earth_ra = (sat_ra.degrees + np.pi) % TWOPI
+                        earth_dec = -sat_dec.degrees
+                        center = [earth_ra._degrees, earth_dec.degrees]
+                if type(center) == list:
+                    # convert center degrees to radians
+                    center = [x / RAD2DEG for x in center]
+                radius_degrees = keepout_def['radius'] / RAD2DEG
+                plotted_keepouts.extend(self.plot_circle(center[1], center[0], radius_degrees, keepout_def['color']))
         #These functions are all time-dependent and draw everything on the background of stars.
         satellite_mark = self.mark_satellite(self.sat_obj,plot_time)
         earth_polygons = self.draw_earth(self.sat_obj,plot_time)
@@ -189,7 +188,7 @@ class starmap():
 
         self.ts = load.timescale()
         time = self.ts.from_datetime(self.window.cross_module_vars['globaltime'].replace(tzinfo=utc))
-        self.star_field, self.star_names = self.draw_starmap(STAR_MAG_LIMIT,time)
+        self.star_field, self.star_names = self.draw_starmap(self.star_mag_limit,time)
         TLE = self.window.cross_module_vars['TLES'][self.sat_id]
         self.sat_obj = EarthSatellite(*TLE)
 
