@@ -8,10 +8,6 @@ import load_tle
 from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import QApplication, QGridLayout, QFileDialog
 
-#Less-known publications which could be good to publish in:
-#Journal of space operations, air and space operations review, space mission planning and operations
-#Some IEEE journals, OPS-SAT stuff, Space mission planning and operations
-
 from PyQt5.QtWidgets import QMainWindow, QMenuBar, QMenu, QAction, QWidget
 import datetime
 
