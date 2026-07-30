@@ -38,7 +38,7 @@ class passfinder():
                 self.gs_data = gs
                 break
         
-        self.TLE = self.window.cross_module_vars['TLES'][self.sat_id]
+        self.sat_dict = self.window.cross_module_vars['sat_dicts'][self.sat_id]
         self.plot_passes()
 
         #Expansion button to make the main widget thing
@@ -93,7 +93,7 @@ class passfinder():
         ts = load.timescale()
         start_time = ts.now()
         end_time = ts.tt_jd(start_time.tt + tracking_days)
-        satellite = EarthSatellite(*self.TLE)
+        satellite = EarthSatellite.from_omm(ts, self.sat_dict)
         skyfield_groundstation = wgs84.latlon(self.gs_data["Lat"],self.gs_data["Lon"])
         times, events = satellite.find_events(skyfield_groundstation, start_time,end_time)
         passes = []

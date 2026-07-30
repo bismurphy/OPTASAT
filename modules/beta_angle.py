@@ -168,7 +168,8 @@ class beta_angle():
         self.drawn_sats = []
         #Plot the orbit for one revolution
         for sat in self.SATS:
-            sat_obj = rendered_satellite(self,self.view3D,self.window.cross_module_vars['TLES'][sat["ID"]],sat["Color"])
+            sat_dict = self.window.cross_module_vars['sat_dicts'][sat["ID"]]
+            sat_obj = rendered_satellite(self,self.view3D,sat_dict,sat["Color"])
             self.drawn_sats.append(sat_obj)
             show_hide_checkbox = QAction("Show sat: " + str(sat["ID"]),self.window,checkable=True)
             self.window.modulesMenu.addAction(show_hide_checkbox)
@@ -183,10 +184,10 @@ class beta_angle():
         self.window.grid.addWidget(self.view3D, new_geometry[1], new_geometry[0], new_geometry[3], new_geometry[2])
        
 class rendered_satellite():
-    def __init__(self,parent,GLRenderer,TLE,color):
+    def __init__(self,parent,GLRenderer,sat_dict,color):
         self.parent = parent
         self.GLRenderer = GLRenderer
-        self.TLE = TLE
+        self.sat_dict = sat_dict
         self.orbit_plot = gl.GLLinePlotItem(pos=[], color=color, width=5, antialias=False)
         self.angmom_line = gl.GLLinePlotItem(pos=[], color=color, width=5, antialias=False)
         #Line indicating sun vector projected onto orbital plane
@@ -194,7 +195,7 @@ class rendered_satellite():
 
     def update(self,time):
         ts = load.timescale()
-        skyfield_sat = EarthSatellite(*self.TLE)
+        skyfield_sat = EarthSatellite.from_omm(ts, self.sat_dict)
         sat_state = skyfield_sat.at(time)
         sat_period_minutes = osculating_elements_of(sat_state).period_in_days*1440
         one_period = ts.utc(*time.utc[:3],0,range(int(sat_period_minutes)+1))

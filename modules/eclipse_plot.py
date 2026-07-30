@@ -35,8 +35,8 @@ class eclipse_plot():
         self.sunlight_plot.clear()
         ts = load.timescale()
         
-        TLE = self.window.cross_module_vars['TLES'][self.sat_id]
-        sat = EarthSatellite(*TLE)
+        sat_dict = self.window.cross_module_vars['sat_dicts'][self.sat_id]
+        sat = EarthSatellite.from_omm(ts, sat_dict)
         startTime = ts.from_datetime(self.window.cross_module_vars['globaltime'].replace(tzinfo=utc))
         endTime = startTime + 1 #calculate one day
         timespan = ts.tt_jd(np.linspace(startTime.tt,endTime.tt,86400))

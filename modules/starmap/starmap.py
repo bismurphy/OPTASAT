@@ -189,8 +189,8 @@ class starmap():
         self.ts = load.timescale()
         time = self.ts.from_datetime(self.window.cross_module_vars['globaltime'].replace(tzinfo=utc))
         self.star_field, self.star_names = self.draw_starmap(self.star_mag_limit,time)
-        TLE = self.window.cross_module_vars['TLES'][self.sat_id]
-        self.sat_obj = EarthSatellite(*TLE)
+        sat_dict = self.window.cross_module_vars['sat_dicts'][self.sat_id]
+        self.sat_obj = EarthSatellite.from_omm(ts, sat_dict)
 
         self.plotted_objects = []
 

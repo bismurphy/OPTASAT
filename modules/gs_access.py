@@ -25,8 +25,8 @@ class gs_access():
                 gs_data = gs
                 break
         groundstation = wgs84.latlon(gs_data['Lat'],gs_data['Lon'])
-        for i, tle in enumerate(self.window.cross_module_vars['TLES'].values()):
-            sat = EarthSatellite(*tle)
+        for i, sat_dict in enumerate(self.window.cross_module_vars['sat_dicts'].values()):
+            sat = EarthSatellite.from_omm(ts, sat_dict)
             startTime = ts.from_datetime(self.window.cross_module_vars['globaltime'].replace(tzinfo=utc))
             endTime = startTime + 1 #calculate one day
             t,events = sat.find_events(groundstation, startTime, endTime)
@@ -45,7 +45,7 @@ class gs_access():
             for bp in bar_pairs:
                 bar = pg.BarGraphItem(x0=[bp[0]], x1 = [bp[1]], y = i+1, height=0.5,brush = 'r')
                 self.access_plot.addItem(bar)
-        ticks = [(i+1, str(tle)) for i, tle in enumerate(self.window.cross_module_vars['TLES'].keys())]
+        ticks = [(i+1, str(tle)) for i, tle in enumerate(self.window.cross_module_vars['sat_dicts'].keys())]
         self.access_plot.getAxis("left").setTicks((ticks,[]))
 
 

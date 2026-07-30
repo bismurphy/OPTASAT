@@ -16,7 +16,7 @@ earth_mu = 3.986e14
 
 def get_TLE_period(tle_in):
     # Get the period from the given mean motion.
-    tle_mean_motion = float(tle_in[1][52:63])
+    tle_mean_motion = float(tle_in['MEAN_MOTION'])
     # that's in orbits per day. 86400 seconds per day means we can get seconds per orbit.
     return 86400 / tle_mean_motion
 # Assuming a circular orbit, convert the TLE period to a velocity.
@@ -35,13 +35,13 @@ class follower_sat():
             setattr(self, key, value)
         self.window = window
         #initialize follower's TLE to match leader's
-        leader_tle = self.window.cross_module_vars['TLES'][self.leader_ID]
-        self.window.cross_module_vars['TLES'][self.sat_ID] = leader_tle
+        leader_dict = self.window.cross_module_vars['sat_dicts'][self.leader_ID]
+        self.window.cross_module_vars['sat_dicts'][self.sat_ID] = leader_dict
 
         #Initialize following to 0 (right on the leader)
         self.separation_time = 0
         #need velocity to convert between distances and times
-        self.leader_velocity = get_TLE_velocity(leader_tle)
+        self.leader_velocity = get_TLE_velocity(leader_dict)
 
         #Now generate the UI. This module supports two different forms of UI.
 
@@ -62,26 +62,25 @@ class follower_sat():
         sat_control_button.triggered.connect(lambda: self.show_controls())
 
     def recalculate_TLE(self):
-        leader_tle = self.window.cross_module_vars['TLES'][self.leader_ID]
+        leader_dict = self.window.cross_module_vars['sat_dicts'][self.leader_ID]
         # Follower's TLE will be just like the leader's, but in order to follow, we change
         # the mean anomaly. To know the difference in mean anomaly, we need the
         # period of the orbit, since fraction of period is equal to mean anomaly fraction of 360.
-        leader_period = get_TLE_period(leader_tle)
+        leader_period = get_TLE_period(leader_dict)
         # Now we know the time, convert to orbit fraction.
         orb_time_fraction = self.separation_time / leader_period
         mean_anomaly_diff = orb_time_fraction * 360
         # Now generate the new TLE. Use the old one, just subbing in the ID and new mean anomaly.
-        old_mean_anomaly = float(leader_tle[1][43:51])
+        old_mean_anomaly = float(leader_dict['MEAN_ANOMALY'])
         new_mean_anomaly = old_mean_anomaly - mean_anomaly_diff
         if new_mean_anomaly < 0:
             new_mean_anomaly += 360
-        #start by copying old TLE into a list of characters (lists are mutable)
-        new_tle = [list(x) for x in leader_tle]
-        new_tle[1][43:51] = list(f'{new_mean_anomaly:.4f}')
-        #convert back to a list of 2 strings
-        new_tle = ["".join(x) for x in new_tle]
+
+        # Create new sat dict for us
+        new_dict = leader_dict.copy()
+        new_dict['MEAN_ANOMALY'] = new_mean_anomaly
         #Give that TLE to the window for other modules to use. self.sat_ID comes from config file!
-        self.window.cross_module_vars['TLES'][self.sat_ID] = new_tle
+        self.window.cross_module_vars['sat_dicts'][self.sat_ID] = new_dict
     # Get a QGridLayout holding all the UI elements for this module
     def control_layout(self, parent=None):
         if self.moduleMode:

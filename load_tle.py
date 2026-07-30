@@ -1,6 +1,7 @@
 import os
 import requests
-from datetime import datetime
+import datetime
+import csv
 
 #ID_number must be an int which is the sat id number.
 #25544 for ISS, for example.
@@ -8,28 +9,30 @@ from datetime import datetime
 def get_tle(ID_number, acceptable_age = 3):
     ID_number = str(ID_number)
     if not os.path.exists(ID_number + ".tle"):
-        return web_retrieve_tle(ID_number)
+        web_retrieve_tle(ID_number)
     else:
         with open(ID_number + ".tle") as f:
-            loaded_tle = f.readlines()
-            loaded_tle = [line[:-1] for line in loaded_tle]
-        current_year = datetime.utcnow().timetuple().tm_year
-        current_day_of_year = datetime.utcnow().timetuple().tm_yday
-        current_epoch_day = str(current_year) + str(current_day_of_year).zfill(3)
-        loaded_tle_epoch = "20" + loaded_tle[0][18:23]
-        tle_age = float(current_epoch_day) - float(loaded_tle_epoch)
+            data = list(csv.DictReader(f))[0]
+        epoch = datetime.datetime.fromisoformat(data['EPOCH']).astimezone(datetime.timezone.utc)
+        now = datetime.datetime.now(datetime.timezone.utc)
+        # convert age in seconds to fraction of days
+        tle_age = (now - epoch).total_seconds()/86400
+        print(tle_age)
         if tle_age > acceptable_age:
-            return web_retrieve_tle(ID_number)
-        return loaded_tle
+            web_retrieve_tle(ID_number)
+    # TLE has been retrieved if needed, now open it
+    with open(ID_number + ".tle") as f:
+        data = list(csv.DictReader(f))[0]
+        return data
+
 def web_retrieve_tle(ID_number):
     ID_number = str(ID_number)
     session = requests.session()
-    url = "https://www.celestrak.com/NORAD/elements/gp.php?CATNR=" + ID_number
+    url = f"http://www.celestrak.org/NORAD/elements/gp.php?CATNR={ID_number}&FORMAT=csv"
     page = session.get(url)
-    sat_tle = page.text[:-2].split("\r\n")[1:]
     with open(ID_number + ".tle","w") as f:
-        f.write("\n".join(sat_tle))
-    return sat_tle
+        f.write(page.text)
+    return
 
 if __name__ == "__main__":
     print(get_tle(25544))

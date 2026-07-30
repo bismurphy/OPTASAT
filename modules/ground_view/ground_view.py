@@ -49,7 +49,7 @@ class ground_view():
         #load relative file path from this script
         self.shape_file = shapefile.Reader(os.path.dirname(os.path.realpath(__file__))  + "/" + 
                                            "shapefile/ne_50m_admin_0_countries.cpg")
-        self.TLE = self.window.cross_module_vars['TLES'][self.sat_id]
+        self.sat_dict = self.window.cross_module_vars['sat_dicts'][self.sat_id]
 
         self.fig, self.ax = plt.subplots()
         self.ax.set_facecolor("lightblue")
@@ -76,7 +76,7 @@ class ground_view():
     def update(self):
         # remove all patches, to generate new ones
         self.ax.patches.clear()
-        sat = EarthSatellite(*self.TLE)
+        sat = EarthSatellite.from_omm(ts, self.sat_dict)
         ts = load.timescale()
         time = ts.from_datetime(self.window.cross_module_vars['globaltime'].replace(tzinfo=utc))
         

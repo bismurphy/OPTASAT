@@ -53,9 +53,10 @@ class plotted_satellite():
         self.offaxis_dir = 0 #direction in which the boresight angle is away from nadir
         
     def update(self):
-        TLE = self.window.cross_module_vars['TLES'][self.ID]
-        sat = EarthSatellite(*TLE)
         ts = load.timescale()
+        sat_dict = self.window.cross_module_vars['sat_dicts'][self.ID]
+        sat = EarthSatellite.from_omm(ts, sat_dict)
+        
         time = ts.from_datetime(self.window.cross_module_vars['globaltime'].replace(tzinfo=utc))
         satpos = sat.at(time)
         self.now_lat,self.now_lon = wgs84.latlon_of(satpos)

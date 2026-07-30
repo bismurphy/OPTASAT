@@ -33,9 +33,9 @@ class plotted_satellite():
         self.arc = self.plot_obj.plot([],[],pen=pg.mkPen(color))
 
     def update(self):
-        TLE = self.window.cross_module_vars['TLES'][self.ID]
-        sat = EarthSatellite(*TLE)
         ts = load.timescale()
+        sat_dict = self.window.cross_module_vars['sat_dicts'][self.ID]
+        sat = EarthSatellite.from_omm(ts, sat_dict)
         time = ts.from_datetime(self.window.cross_module_vars['globaltime'].replace(tzinfo=utc))
         sight_diff = sat - self.gs
         sight_vector = sight_diff.at(time)
