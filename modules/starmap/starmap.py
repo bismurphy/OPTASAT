@@ -164,9 +164,10 @@ class starmap():
         moonstamp = self.plot_stamp(moon_ra,moon_dec,MOON_IMAGE,MOON_SIZE)
         moon_phase = get_moon_phase(self.earth+self.sat_obj, self.moon, self.sun,plot_time)
         moonmask = self.draw_moonmask(moon_phase,MOON_SIZE,moon_ra.radians,moon_dec.radians)
+        plotted_othersats = self.draw_othersats(self.sat_obj, self.otherSatIDs, plot_time)
         #Refresh the plot based on the new objects we made
         self.plotWidget.draw()
-        self.plotted_objects = [*plotted_keepouts, satellite_mark,*earth_polygons,sunstamp,moonstamp,moonmask]
+        self.plotted_objects = [*plotted_keepouts, satellite_mark,*earth_polygons,sunstamp,moonstamp,moonmask, *plotted_othersats]
         
     def populate_graph(self):
         self.ax.set_facecolor("black")
@@ -190,7 +191,7 @@ class starmap():
         time = self.ts.from_datetime(self.window.cross_module_vars['globaltime'].replace(tzinfo=utc))
         self.star_field, self.star_names = self.draw_starmap(self.star_mag_limit,time)
         sat_dict = self.window.cross_module_vars['sat_dicts'][self.sat_id]
-        self.sat_obj = EarthSatellite.from_omm(ts, sat_dict)
+        self.sat_obj = EarthSatellite.from_omm(self.ts, sat_dict)
 
         self.plotted_objects = []
 
@@ -345,6 +346,19 @@ class starmap():
         y_vals_2 += center_y
         points = list(zip(x_vals_1,y_vals_1)) + list(zip(x_vals_2,y_vals_2))
         return self.ax.add_patch(Polygon(points,color='k',alpha=0.7,linewidth=0))
+    # Draw the location in the sky of any other satellite, from the perspective of our base satellite
+    def draw_othersats(self, self_sat, othersats, plot_time):
+        plotted_sats = []
+        for ID in othersats:
+            other_sat_dict = self.window.cross_module_vars['sat_dicts'][ID]
+            other_sat = EarthSatellite.from_omm(self.ts, other_sat_dict)
+            sat_ra,sat_dec,_ = (other_sat - self_sat).at(plot_time).radec()
+            sat_ra = sat_ra.radians
+            sat_dec = sat_dec.radians
+            plotted_sats.append(self.ax.scatter(sat_ra,sat_dec,s=200,color='orange',marker='2'))
+        return plotted_sats
+
+
     #Go back to normal size and location when something else becomes the big widget
     def return_to_normal(self):
         self.window.grid.removeWidget(self.box)

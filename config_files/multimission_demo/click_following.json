@@ -43,9 +43,9 @@
             "source_file": "Timecontrol",
             "initparams": {
                 "name": "TimeController",
-                "grid_x": 4,
+                "grid_x": 5,
                 "grid_y": 1,
-                "grid_w": 2,
+                "grid_w": 1,
                 "grid_h": 1,
                 "color": "#abcdef",
                 "self_update_ms": 1000
@@ -107,6 +107,25 @@
                 "color": "#abcdef",
                 "sat_id": 25544,
                 "groundstation": "Punta Arenas"
+            }
+        },
+        {
+            "source_file": "starmap.starmap",
+            "initparams": {
+                "name": "starmap",
+                "grid_x": 4,
+                "grid_y": 1,
+                "grid_w": 1,
+                "grid_h": 1,
+                "color": "#FFFFFF",
+                "star_mag_limit": 2.5,
+                "sat_id": 25544,
+                "self_update_ms": 1000,
+                "keepouts": [
+                ],
+                "otherSatIDs":[
+                    99999
+                ]
             }
         }
     ]
