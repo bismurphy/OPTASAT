@@ -28,7 +28,7 @@ SUN_IMAGE =  plt.imread(os.path.dirname(os.path.realpath(__file__))  +'/sun.png'
 MOON_IMAGE = plt.imread(os.path.dirname(os.path.realpath(__file__))  +'/moon.png')
 
 #how many points to use when drawing the earth occlusion shape
-VERTICAL_RESOLUTION = 1000
+CIRCLE_RESOLUTION = 1000
 #How large to draw the images of the sun and moon. Note this is much larger than real-life.
 SUN_SIZE = 0.15
 MOON_SIZE = 0.15
@@ -274,51 +274,39 @@ class starmap():
     #Given a center lat/long and angular radius, returns a set of longs/lats to represent that circle.
     def plot_circle(self, center_lat, center_lon, radius, color):
         plotted_polygons = [] #Keep track of what we end up plotting so we can return them
-        #Use the haversine formula, inverted.
+        # Start by getting the set of points we need to plot.
+        # https://www.movable-type.co.uk/scripts/latlong.html has "Destination point given distance and bearing from start point"
+        # So generate bearings from 0 to 2pi, and travel the required radius.
         points_to_plot = []
-        for lat in np.linspace(-HALFPI, HALFPI, VERTICAL_RESOLUTION):
-            numerator = hav(radius) - hav(lat - center_lat)
-            denom = np.cos(center_lat) * np.cos(lat)
-            lon_shift = archav( numerator / denom ) #will be None if out of bounds of archav
-            if lon_shift is not None:
-                points_to_plot.append([(center_lon + lon_shift)%TWOPI,lat])
-                points_to_plot.append([(center_lon - lon_shift)%TWOPI,lat])
-        #Now that we have all the points, sort them from lowest RA to highest.
-        points_to_plot.sort(key=lambda x: x[0])
+        bearings = np.linspace(0, TWOPI, CIRCLE_RESOLUTION)
+        lats = np.arcsin(np.sin(center_lat) * np.cos(radius) +
+                        np.cos(center_lat) * np.sin(radius) * np.cos(bearings))
+        lons = center_lon + np.arctan2(np.sin(bearings) * np.sin(radius) * np.cos(center_lat),
+                                        np.cos(radius) - np.sin(center_lat) * np.sin(lats))
+        points_to_plot = np.column_stack([lons, lats])
 
-        #First need to detect a circle which is wrapped on the sides. Hardest case to math out.
-        #Search for big X jumps (right edge of left half, left edge of right half)
-        x_jumps = [points_to_plot[i][0] - points_to_plot[i-1][0] for i in range(1,len(points_to_plot))]
-        if max(x_jumps) > 2:
-            #We have two halves. We need to split to two shapes to draw in.
-            left_half = [i for i in points_to_plot if i[0] < np.pi]
-            right_half = [i for i in points_to_plot if i[0] > np.pi]
-            #Half-Circle around the center of the side
-            #(used to use 0,0 but failed when the circle wrapped too low/high)
-            #Guesstimate where the circle is touching the axis to evaluate angles to draw circle.
-            #3 is a magic number determined empirically. But the higher the earth center is, the higher you want this to go.
-            average_edge = center_lat * 3
-            left_half.sort(key = lambda x: np.arctan2(x[1] - average_edge,x[0]))
-            #And the same on the right.
-            right_half.sort(key = lambda x: np.arctan2(x[1] - average_edge,x[0]- TWOPI)%TWOPI)
-            plotted_polygons.append(self.ax.add_patch(Polygon(left_half,color='b',alpha=0.5,linewidth=2)))
-            plotted_polygons.append(self.ax.add_patch(Polygon(right_half,color='b',alpha=0.5,linewidth=2)))
-        else: #If we only have one shape (no wrap), draw that single one.
-            #Coming into this we're still sorted left to right.
-            #That works when the earth is a siney thing crossing the 2pi wrap. What if it's a big circle?
-            #Detect a circle by finding the largest y jump between consecutive (left-to-right) points.
-            y_jumps = [points_to_plot[i][1] - points_to_plot[i-1][1] for i in range(1,len(points_to_plot))]
-            if max(y_jumps) > 0.5 * radius: #Circle detected! Re-sort to draw in a ring.
-                points_to_plot.sort(key = lambda x: np.arctan2(x[1] - center_lat,x[0] - center_lon))
-            else:#No circle detected. First extend the "wave" to meet the left/right edges, then add two corners.
-                leftmost_point = points_to_plot[0]
-                rightmost_point = points_to_plot[-1]
-                extra_left_point = [0,leftmost_point[1]]
-                extra_right_point = [TWOPI,rightmost_point[1]]
-                points_to_plot = [extra_left_point,*points_to_plot,extra_right_point]
-                #Do we need to add upper or lower corners? Find out by checking if the satellite is high or low.
-                dec_sign = (1 if center_lat > 0 else -1)
-                points_to_plot = [[TWOPI,dec_sign*HALFPI],[0,dec_sign*HALFPI]] + points_to_plot
+        # If we pass over either of the poles, extend the polygon points to cover the pole. Do this by first detecting the pole:
+        if(abs(center_lat) + radius > HALFPI):
+            # Correct any reaching beyond standard range of 0 to 2pi
+            points_to_plot[:, 0] %= TWOPI
+            # Sorts by x coordinate to eliminate the necessary hop over antimeridian
+            points_to_plot = points_to_plot[points_to_plot[:, 0].argsort()]
+            # add points at corners to make polygon fill whole area above the line
+            pole_lon = np.sign(center_lat) * HALFPI
+            points_to_plot = np.vstack([[0,pole_lon], points_to_plot, [TWOPI,pole_lon]])
+            plotted_polygons.append(self.ax.add_patch(Polygon(points_to_plot,color=color,alpha=0.5,linewidth=2)))
+        # If we didn't pass over a pole, check if we went outside standard coordinates.
+        elif np.any((lons < 0) | (lons > TWOPI)):
+            # Create a second copy polygon, shifted by 2pi to cover the other axis. Therefore we will actually have two
+            # polygons, but each cuts off at 0 or 2pi.
+            second_polygon = points_to_plot.copy()
+            # determine the direction to shift the second one based on the center longitude.
+            # If greater than pi, shift down.
+            second_polygon -= [TWOPI * np.sign(center_lon - np.pi), 0]
+            plotted_polygons.append(self.ax.add_patch(Polygon(points_to_plot,color=color,alpha=0.5,linewidth=2)))
+            plotted_polygons.append(self.ax.add_patch(Polygon(second_polygon,color=color,alpha=0.5,linewidth=2)))
+        # Not far enough toward any axis to cross over it, just plot the polygon as a single simple blob
+        else:
             plotted_polygons.append(self.ax.add_patch(Polygon(points_to_plot,color=color,alpha=0.5,linewidth=2)))
         return plotted_polygons
     
