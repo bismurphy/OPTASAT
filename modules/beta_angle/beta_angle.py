@@ -70,6 +70,8 @@ class beta_angle():
         hom_trans = np.eye(4)
         hom_trans[:3, :3] = self.transformation_matrix
         self.earthmesh.setTransform(pg.Transform3D(hom_trans))
+        earth_rotation_deg = time.gast / 24 * 360
+        self.earthmesh.rotate(earth_rotation_deg,0,0,1,local=True)
 
         #Draw the axis of the earth from the north pole to the south pole
         north_pole = wgs84.latlon(90,0).at(time).position.km/1000
@@ -78,7 +80,6 @@ class beta_angle():
         south_pole = np.dot(self.transformation_matrix,south_pole)
 
         poles = np.array([north_pole,south_pole])
-        
         self.earth_axis.setData(pos=poles)
         self.Nlabel.setData(pos= north_pole)
         self.Slabel.setData(pos= south_pole*1.1)
@@ -94,18 +95,17 @@ class beta_angle():
         self.oldtime = time
         #This whole 3D plot is done in units of megameters. Therefore earth's radius of 6371km is 6.371 units.
         ERAD = 6.371
-        earth = gl.MeshData.sphere(rows=400, cols=400,radius = ERAD)
+        earth = gl.MeshData.sphere(rows=100, cols=100,radius = ERAD)
         raw_tex = np.asarray(Image.open(
             os.path.dirname(os.path.realpath(__file__))  + '/earth_noClouds.0330_web.png')) / 256
         tex_h, tex_w = raw_tex.shape[:2]
         verts = earth.vertexes() / ERAD # normalize the vertices so we texturize a sphere of r=1
         pixel_y = ((0.5 - np.asin(verts[:,2])/np.pi) * tex_h - 1).astype(int)
-        print(min(pixel_y),max(pixel_y))
         pixel_x = ((np.atan2(verts[:,1], verts[:,0]) / (2*np.pi) + 0.5) * tex_w - 1).astype(int)
         textured_earth = raw_tex[pixel_y, pixel_x]
         earth_colors = np.append(textured_earth, np.ones([len(verts), 1]), axis=1)
         earth.setVertexColors(earth_colors)
-        self.earthmesh = gl.GLMeshItem(meshdata=earth, smooth=True)
+        self.earthmesh = gl.GLMeshItem(meshdata=earth, smooth=True, glOptions='opaque')
         # Now we have an Earth. Rotate it to match the current conditions.
 
         #Determine orientation of the axis using the location of the earth
@@ -128,24 +128,13 @@ class beta_angle():
         hom_trans = np.eye(4)
         hom_trans[:3, :3] = self.transformation_matrix
         self.earthmesh.setTransform(pg.Transform3D(hom_trans))
-
         self.view3D.addItem(self.earthmesh)
 
-        
-
-        #Draw the axis of the earth from the north pole to the south pole
-        north_pole = wgs84.latlon(90,0).at(time).position.km/1000
-        south_pole = wgs84.latlon(-90,0).at(time).position.km/1000
-        north_pole = np.dot(self.transformation_matrix,north_pole)
-        south_pole = np.dot(self.transformation_matrix,south_pole)
-
-        poles = np.array([north_pole,south_pole])
-        color = np.array([(1,0.6,0,1)]*len(poles))
-        self.earth_axis = gl.GLLinePlotItem(pos=poles, color=color, width=5, antialias=True)
+        self.earth_axis = gl.GLLinePlotItem(pos=[0,0,0], color=(1,0.6,0,1), width=5, antialias=True)
         self.view3D.addItem(self.earth_axis)
         #Add text labels for N and S to help orient
-        self.Nlabel = gl.GLTextItem(pos= north_pole, text='N',font=QtGui.QFont('Helvetica',10))
-        self.Slabel = gl.GLTextItem(pos= south_pole*1.1, text='S',font=QtGui.QFont('Helvetica',10))
+        self.Nlabel = gl.GLTextItem(pos= [0,0,0], text='N',font=QtGui.QFont('Helvetica',10))
+        self.Slabel = gl.GLTextItem(pos= [0,0,0], text='S',font=QtGui.QFont('Helvetica',10))
         self.view3D.addItem(self.Nlabel)
         self.view3D.addItem(self.Slabel)
 
@@ -160,6 +149,7 @@ class beta_angle():
         sun_vector = np.dot(self.transformation_matrix,sun_vector)
         self.norm_sun = sun_vector / np.linalg.norm(sun_vector)
         sun = gl.GLScatterPlotItem(pos=self.norm_sun*1500, size=np.array([100]), color=np.array([(1,1,0.1,0.7)]), pxMode=False)
+        sun.setGLOptions('opaque')
         self.view3D.addItem(sun)
 
         #Draw a vector pointing to the sun
@@ -179,9 +169,8 @@ class beta_angle():
         z = np.sin(dec*np.pi/180)
         star_positions = (np.column_stack((x, y, z)) @ self.transformation_matrix)*10000
         star_sizes = (5 - mag)*10
-        print(star_positions.shape)
-        print(star_sizes.shape)
         stars = gl.GLScatterPlotItem(pos=star_positions, size=star_sizes, color=np.array([(1,1,1,1)]*len(star_positions)), pxMode=False)
+        stars.setGLOptions('opaque')
         self.view3D.addItem(stars)
 
         self.drawn_sats = []
@@ -211,11 +200,18 @@ class rendered_satellite():
         self.angmom_line = gl.GLLinePlotItem(pos=[], color=color, width=5, antialias=False)
         #Line indicating sun vector projected onto orbital plane
         self.beta_vec = gl.GLLinePlotItem(pos=[], color=color, width=5, antialias=False)
-
-    def update(self,time):
+        self.sat_dot = gl.GLScatterPlotItem(pos=[], size=np.array([1]), color=pg.mkColor(color), pxMode=False)
+        self.sat_dot.setGLOptions('opaque')
+        # Dot is always visible so add it. Other elements are toggleable
+        self.GLRenderer.addItem(self.sat_dot)
+    # Update the satellite. Always draw a dot for it, and if draw_orbit, then draw its
+    # orbital path, the normal vector, and the vector toward sun for beta angle
+    def update(self, time):
         ts = load.timescale()
         skyfield_sat = EarthSatellite.from_omm(ts, self.sat_dict)
         sat_state = skyfield_sat.at(time)
+        sat_pos = np.dot(self.parent.transformation_matrix, sat_state.position.km) / 1000
+        self.sat_dot.setData(pos=sat_pos)
         sat_period_minutes = osculating_elements_of(sat_state).period_in_days*1440
         one_period = ts.utc(*time.utc[:3],0,range(int(sat_period_minutes)+1))
         positions = np.transpose(skyfield_sat.at(one_period).position.km)/1000
