@@ -100,7 +100,7 @@ class beta_angle():
         ERAD = 6.371
         earth = gl.MeshData.sphere(rows=100, cols=100,radius = ERAD)
         raw_tex = np.asarray(Image.open(
-            os.path.dirname(os.path.realpath(__file__))  + '/earth_noClouds.0330_web.png')) / 256
+            os.path.dirname(os.path.realpath(__file__))  + '/background_map.png')) / 256
         tex_h, tex_w = raw_tex.shape[:2]
         verts = earth.vertexes() / ERAD # normalize the vertices so we texturize a sphere of r=1
         pixel_y = ((0.5 - np.asin(verts[:,2])/np.pi) * tex_h - 1).astype(int)
