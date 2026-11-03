@@ -87,7 +87,7 @@ class beta_angle():
         self.oldtime = time
         #This whole 3D plot is done in units of megameters. Therefore earth's radius of 6371km is 6.371 units.
 
-        earth = gl.MeshData.sphere(rows=50, cols=50,radius = 6.371)
+        earth = gl.MeshData.sphere(rows=400, cols=400,radius = 6.371)
         color_map = pg.colormap.get("CET-L15")
         x = earth.vertexes()[:, 0]
         x_max, x_min = x.max(), x.min()
