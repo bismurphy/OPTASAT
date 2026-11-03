@@ -3,11 +3,14 @@ from PyQt5.QtWidgets import QPushButton, QAction, QGraphicsEllipseItem, QSlider
 import pyqtgraph.opengl as gl
 import pyqtgraph as pg
 import numpy as np
+import os
 
 from skyfield.api import load, EarthSatellite, wgs84, Star, utc
 from skyfield.elementslib import osculating_elements_of
 from skyfield.framelib import ecliptic_frame
 from skyfield.data import hipparcos
+
+from PIL import Image
 
 def sigmoid_shader(x):
     W = 10#Intensity of the cutoff at 0.5. High = sharp shadow
@@ -64,6 +67,10 @@ class beta_angle():
         y_hat = np.cross(z_hat,x_hat)
         self.transformation_matrix = np.vstack((x_hat,y_hat,z_hat))
 
+        hom_trans = np.eye(4)
+        hom_trans[:3, :3] = self.transformation_matrix
+        self.earthmesh.setTransform(pg.Transform3D(hom_trans))
+
         #Draw the axis of the earth from the north pole to the south pole
         north_pole = wgs84.latlon(90,0).at(time).position.km/1000
         south_pole = wgs84.latlon(-90,0).at(time).position.km/1000
@@ -86,16 +93,20 @@ class beta_angle():
         time = ts.from_datetime(self.window.cross_module_vars['globaltime'].replace(tzinfo=utc))
         self.oldtime = time
         #This whole 3D plot is done in units of megameters. Therefore earth's radius of 6371km is 6.371 units.
-
-        earth = gl.MeshData.sphere(rows=400, cols=400,radius = 6.371)
-        color_map = pg.colormap.get("CET-L15")
-        x = earth.vertexes()[:, 0]
-        x_max, x_min = x.max(), x.min()
-        x_normalized = 1- ((x - x_min) / (x_max-x_min)) #Subtract to 1 to put dark side away from sun
-        colors = color_map.map(sigmoid_shader(x_normalized), mode="float")
-        earth.setFaceColors(colors)
+        ERAD = 6.371
+        earth = gl.MeshData.sphere(rows=400, cols=400,radius = ERAD)
+        raw_tex = np.asarray(Image.open(
+            os.path.dirname(os.path.realpath(__file__))  + '/earth_noClouds.0330_web.png')) / 256
+        tex_h, tex_w = raw_tex.shape[:2]
+        verts = earth.vertexes() / ERAD # normalize the vertices so we texturize a sphere of r=1
+        pixel_y = ((0.5 - np.asin(verts[:,2])/np.pi) * tex_h - 1).astype(int)
+        print(min(pixel_y),max(pixel_y))
+        pixel_x = ((np.atan2(verts[:,1], verts[:,0]) / (2*np.pi) + 0.5) * tex_w - 1).astype(int)
+        textured_earth = raw_tex[pixel_y, pixel_x]
+        earth_colors = np.append(textured_earth, np.ones([len(verts), 1]), axis=1)
+        earth.setVertexColors(earth_colors)
         self.earthmesh = gl.GLMeshItem(meshdata=earth, smooth=True)
-        self.view3D.addItem(self.earthmesh)
+        # Now we have an Earth. Rotate it to match the current conditions.
 
         #Determine orientation of the axis using the location of the earth
         eph = load('de421.bsp')
@@ -112,6 +123,15 @@ class beta_angle():
         #Finally for y. Just z cross x.
         y_hat = np.cross(z_hat,x_hat)
         self.transformation_matrix = np.vstack((x_hat,y_hat,z_hat))
+        # The mesh requires a transformation matrix in homogenous coordinates, which needs
+        # to be a 4x4 matrix. All the "extra" elements are that of the identity matrix.
+        hom_trans = np.eye(4)
+        hom_trans[:3, :3] = self.transformation_matrix
+        self.earthmesh.setTransform(pg.Transform3D(hom_trans))
+
+        self.view3D.addItem(self.earthmesh)
+
+        
 
         #Draw the axis of the earth from the north pole to the south pole
         north_pole = wgs84.latlon(90,0).at(time).position.km/1000
@@ -149,19 +169,18 @@ class beta_angle():
         with load.open(hipparcos.URL) as f:
             df = hipparcos.load_dataframe(f)
         df_filtered = df[df['magnitude'] <= 2.5]
-        starlist = df_filtered.values.tolist()
+        starlist = df_filtered.values
 
-        star_positions = []
-        star_sizes = []
-        for star in starlist:
-            mag,ra,dec = star[:3]
-            x = np.cos(ra*np.pi/180)
-            y = np.sin(ra*np.pi/180)
-            z = np.sin(dec*np.pi/180)
-            pos = [x,y,z]
-            star_positions.append(np.dot(self.transformation_matrix, pos)*10000)
-            star_sizes.append((5 - mag)*10)
-            
+        mag = starlist[:,0]
+        ra = starlist[:,1]
+        dec = starlist[:,2]
+        x = np.cos(ra*np.pi/180)
+        y = np.sin(ra*np.pi/180)
+        z = np.sin(dec*np.pi/180)
+        star_positions = (np.column_stack((x, y, z)) @ self.transformation_matrix)*10000
+        star_sizes = (5 - mag)*10
+        print(star_positions.shape)
+        print(star_sizes.shape)
         stars = gl.GLScatterPlotItem(pos=star_positions, size=star_sizes, color=np.array([(1,1,1,1)]*len(star_positions)), pxMode=False)
         self.view3D.addItem(stars)
 

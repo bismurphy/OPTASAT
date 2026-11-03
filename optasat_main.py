@@ -62,6 +62,7 @@ class Window(QMainWindow):
 
         self.all_active_modules = []
         for module in self.params['modules']:
+            print("Loading module", module['source_file'])
             file = module['source_file']
             importname = "modules." + file
             imported_module = importlib.import_module(importname)

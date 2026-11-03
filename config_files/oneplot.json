@@ -51,7 +51,7 @@
             }
         },
         {
-            "source_file": "beta_angle",
+            "source_file": "beta_angle.beta_angle",
             "initparams": {
                 "name": "Betaview",
                 "grid_x": 0,
