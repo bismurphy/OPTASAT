@@ -67,6 +67,9 @@ class beta_angle():
         y_hat = np.cross(z_hat,x_hat)
         self.transformation_matrix = np.vstack((x_hat,y_hat,z_hat))
 
+        # The mesh requires a transformation matrix in homogenous coordinates, which needs
+        # to be a 4x4 matrix. All the "extra" elements are that of the identity matrix.
+
         hom_trans = np.eye(4)
         hom_trans[:3, :3] = self.transformation_matrix
         self.earthmesh.setTransform(pg.Transform3D(hom_trans))
@@ -106,6 +109,7 @@ class beta_angle():
         earth_colors = np.append(textured_earth, np.ones([len(verts), 1]), axis=1)
         earth.setVertexColors(earth_colors)
         self.earthmesh = gl.GLMeshItem(meshdata=earth, smooth=True, glOptions='opaque')
+        self.view3D.addItem(self.earthmesh)
         # Now we have an Earth. Rotate it to match the current conditions.
 
         #Determine orientation of the axis using the location of the earth
@@ -123,12 +127,6 @@ class beta_angle():
         #Finally for y. Just z cross x.
         y_hat = np.cross(z_hat,x_hat)
         self.transformation_matrix = np.vstack((x_hat,y_hat,z_hat))
-        # The mesh requires a transformation matrix in homogenous coordinates, which needs
-        # to be a 4x4 matrix. All the "extra" elements are that of the identity matrix.
-        hom_trans = np.eye(4)
-        hom_trans[:3, :3] = self.transformation_matrix
-        self.earthmesh.setTransform(pg.Transform3D(hom_trans))
-        self.view3D.addItem(self.earthmesh)
 
         self.earth_axis = gl.GLLinePlotItem(pos=[0,0,0], color=(1,0.6,0,1), width=5, antialias=True)
         self.view3D.addItem(self.earth_axis)
