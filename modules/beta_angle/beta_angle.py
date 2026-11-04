@@ -139,6 +139,7 @@ class beta_angle():
         #Draw ring for equator
         equator = [np.dot(self.transformation_matrix,wgs84.latlon(0,lon).at(time).position.km/1000) for lon in range(361)]
         self.equator_drawn = gl.GLLinePlotItem(pos=equator, color=(0.0,1.0,0.0,1.0), width=5, antialias=True)
+        self.equator_drawn.setGLOptions('opaque')
         self.view3D.addItem(self.equator_drawn)
 
         #Show the sun much nearer than it should be (at 1500 megameters it's at L1)
