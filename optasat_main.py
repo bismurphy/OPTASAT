@@ -51,14 +51,17 @@ class Window(QMainWindow):
         self.params=None
         with open(chosen_config_file, encoding='utf-8') as f:
             self.params = json.load(f)
-        # TLES here is a misnomer. We use modern Celestrak CSV.
-        sat_dicts = {x : load_tle.get_tle(x) for x in self.params['Spacecraft_IDS']}
-        self.cross_module_vars["sat_dicts"] = sat_dicts
         # Initialize global time to now, other modules (especially time controller) may change it.
         if "start_time" in self.params:
-            self.cross_module_vars['globaltime'] = datetime.datetime(*self.params['start_time'])
+            self.cross_module_vars['globaltime'] = datetime.datetime(*self.params['start_time']).astimezone(datetime.timezone.utc)
         else:
             self.cross_module_vars['globaltime'] = datetime.datetime.now(datetime.timezone.utc)
+        # TLES here is a misnomer. We use modern Celestrak CSV.
+        # Fetch them such that they are within 3 days of the specified time
+        acceptable_TLE_date = self.cross_module_vars['globaltime'] - datetime.timedelta(days=3)
+        sat_dicts = {x : load_tle.get_tle(x,acceptable_TLE_date)
+            for x in self.params['Spacecraft_IDS']}
+        self.cross_module_vars["sat_dicts"] = sat_dicts
 
         self.all_active_modules = []
         for module in self.params['modules']:
