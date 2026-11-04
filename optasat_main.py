@@ -53,7 +53,7 @@ class Window(QMainWindow):
             self.params = json.load(f)
         # Initialize global time to now, other modules (especially time controller) may change it.
         if "start_time" in self.params:
-            self.cross_module_vars['globaltime'] = datetime.datetime(*self.params['start_time']).astimezone(datetime.timezone.utc)
+            self.cross_module_vars['globaltime'] = datetime.datetime(*self.params['start_time'],tzinfo=datetime.timezone.utc)
         else:
             self.cross_module_vars['globaltime'] = datetime.datetime.now(datetime.timezone.utc)
         # TLES here is a misnomer. We use modern Celestrak CSV.

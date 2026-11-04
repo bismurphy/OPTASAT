@@ -198,7 +198,7 @@ class rendered_satellite():
         self.angmom_line = gl.GLLinePlotItem(pos=[], color=color, width=5, antialias=False)
         #Line indicating sun vector projected onto orbital plane
         self.beta_vec = gl.GLLinePlotItem(pos=[], color=color, width=5, antialias=False)
-        self.sat_dot = gl.GLScatterPlotItem(pos=[], size=np.array([1]), color=pg.mkColor(color), pxMode=False)
+        self.sat_dot = gl.GLScatterPlotItem(pos=[], size=np.array([10]), color=pg.mkColor(color), pxMode=True)
         self.sat_dot.setGLOptions('opaque')
         # Dot is always visible so add it. Other elements are toggleable
         self.GLRenderer.addItem(self.sat_dot)
